@@ -1,4 +1,6 @@
 import csv
+from math import exp
+from math import pow
 
 def load_csv(filename):
     lines = []
@@ -26,12 +28,12 @@ def extract_features(raw, isActual):
     for r in raw:
         point = {}
         if (isActual):
-            point["label"] = int(r['valy'])
+            point['label'] = int(r['valy'])
         else:
-            point["label"] = int(r['testy'])
+            point['label'] = int(r['testy'])
 
         features = []
-        for i in range(0, len(raw[0])-2):
+        for i in range(0, len(raw[0]) - 1):
             features.append(int(r['pixel' + str(i)]))
 
         point['features'] = features
@@ -50,32 +52,63 @@ def sign(value):
     else:
         return 1
 
-def update():
-
-def initialize_model(data, i):
-    model = data[i]['features']
-    return model
-
-def train(data):
+def train(data, func, z=1):
     mistakes = []
+    num_mistakes = 0
+    T = 1
     for i in range(0, len(data)):
-        value = dot(mistakes, data[i]['features'])
-        if (sign(value) != data[i]['label']):
-            mistakes.append(data[i]['features'])
-        else:
-            
+        val = 0.0
+        for j in range(0, len(mistakes)):
+            val += mistakes[j]['label'] * func(mistakes[j]['features'], data[i]['features'], z)
 
-    model = initialize_model(data, i)
-    print "hello"
+        if (sign(val) != data[i]['label']):
+            mistakes.append(data[i])
+            num_mistakes += 1
+
+        T += 1
+
+        if (T % 100 == 0):
+            print float(num_mistakes)/T
+    print "\n"
+
+def kernel(x, y, z=1):
+    return kerneld(x, y, 1)
+
+def kerneld(x, y, d):
+    return pow(dot(x, y) + 1, d)
+
+def exponential_kernel(x, y, z=1):
+    result_vector = []
+    for i in range(0, len(x)):
+        result_vector.append(x[i]-y[i])
+
+    result = 0.0
+    for j in range(0, len(result_vector)):
+        result += pow(result_vector[j], 2)
+
+    result = pow(result, .5)
+
+    return exp(-1.0 * (result)/200)
 
 def main():
-    # test data
-    test_data = load_adult_train_data()
-    extract_features(test_data, False)
+    # load test data
+    data_test = load_adult_train_data()
+    test_data = extract_features(data_test, False)
 
-    # validation data
-    #validation_data = load_validation_data()
-    #extract_features(validation_data, True)
+    # load validation data
+    data = load_validation_data()
+    validation_data = extract_features(data, True)
+
+    # 3.4.1
+    train(validation_data, kernel)
+
+    # 3.4.2
+    set = [1, 3, 5, 7, 10, 15, 20]
+    for d in set:
+        train(validation_data, kerneld, d)
+
+    # 3.4.3
+    train(test_data, exponential_kernel)
 
 if __name__ == "__main__":
     main()
