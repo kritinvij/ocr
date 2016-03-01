@@ -56,6 +56,7 @@ def train(data, func, z=1):
     mistakes = []
     num_mistakes = 0
     T = 1
+    loss = 0.0
     for i in range(0, len(data)):
         val = 0.0
         for j in range(0, len(mistakes)):
@@ -68,8 +69,10 @@ def train(data, func, z=1):
         T += 1
 
         if (T % 100 == 0):
-            print float(num_mistakes)/T
+            loss = float(num_mistakes)/T
+            print loss
     print "\n"
+    return loss
 
 def kernel(x, y, z=1):
     return kerneld(x, y, 1)
@@ -104,8 +107,14 @@ def main():
 
     # 3.4.2
     set = [1, 3, 5, 7, 10, 15, 20]
+    min = 1
+    min_d = 1
     for d in set:
-        train(validation_data, kerneld, d)
+        loss = train(validation_data, kerneld, d)
+        if loss < min:
+            min = loss
+            min_d = d
+    print "minimum loss for: " + str(d) + " at: " + str(min_d) + "\n"
 
     # 3.4.3
     train(test_data, exponential_kernel)
