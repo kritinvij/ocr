@@ -39,13 +39,34 @@ def extract_features(raw, isActual):
     return data
 
 def dot(x, y):
-    s = 0
+    s = 0.0
     for i in range(0, len(x)):
         s = s + x[i]*y[i]
     return s
 
-def train(data):
+def sign(value):
+    if (value <= 0):
+        return -1
+    else:
+        return 1
 
+def update():
+
+def initialize_model(data, i):
+    model = data[i]['features']
+    return model
+
+def train(data):
+    mistakes = []
+    for i in range(0, len(data)):
+        value = dot(mistakes, data[i]['features'])
+        if (sign(value) != data[i]['label']):
+            mistakes.append(data[i]['features'])
+        else:
+            
+
+    model = initialize_model(data, i)
+    print "hello"
 
 def main():
     # test data
